@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The AI Content Engine — Built for you. Owned by you. Runs without you.</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a08;
+    --cream: #f5f0e8;
+    --warm-white: #faf7f2;
+    --rust: #c4522a;
+    --rust-light: #e8693a;
+    --gold: #c9a84c;
+    --muted: #8a8478;
+    --border: #e0d9ce;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--warm-white);
+    color: var(--black);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    background: var(--black);
+    padding: 80px 60px 80px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+  }
+
+  .hero-left::after {
+    content: '';
+    position: absolute;
+    top: 0; right: -1px; bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, var(--rust), var(--gold), transparent);
+  }
+
+  .logo-mark {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.1s;
+  }
+
+  .hero-headline {
+    opacity: 0;
+    animation: fadeUp 0.9s ease forwards 0.3s;
+  }
+
+  .hero-headline h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 5vw, 68px);
+    font-weight: 900;
+    line-height: 1.0;
+    color: var(--cream);
+    letter-spacing: -0.02em;
+  }
+
+  .hero-headline h1 em {
+    font-style: italic;
+    color: var(--rust-light);
+  }
+
+  .hero-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 28px;
+    line-height: 1.8;
+  }
+
+  .hero-cta-area {
+    opacity: 0;
+    animation: fadeUp 0.9s ease forwards 0.6s;
+  }
+
+  .cta-primary {
+    display: inline-block;
+    background: var(--rust);
+    color: white;
+    padding: 18px 40px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--rust-light);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .cta-primary:hover::before { transform: translateX(0); }
+  .cta-primary span { position: relative; z-index: 1; }
+
+  .cta-note {
+    margin-top: 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .hero-right {
+    background: var(--cream);
+    padding: 80px 80px 80px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+
+  .proof-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    opacity: 0;
+    animation: fadeUp 0.9s ease forwards 0.5s;
+  }
+
+  .proof-item {
+    border-left: 2px solid var(--rust);
+    padding-left: 24px;
+  }
+
+  .proof-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--black);
+    line-height: 1;
+  }
+
+  .proof-number span {
+    font-size: 22px;
+    color: var(--rust);
+    vertical-align: super;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .proof-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  /* USP BANNER */
+  .usp-banner {
+    background: var(--black);
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .usp-track {
+    display: flex;
+    gap: 0;
+    white-space: nowrap;
+    animation: marquee 20s linear infinite;
+  }
+
+  .usp-item {
+    padding: 18px 48px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--cream);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border-right: 1px solid #2a2a28;
+    flex-shrink: 0;
+  }
+
+  .usp-item.accent { color: var(--rust-light); }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 120px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--rust);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 48px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .section-label::after {
+    content: '';
+    height: 1px;
+    width: 48px;
+    background: var(--rust);
+    display: block;
+  }
+
+  /* HOW IT WORKS */
+  .process {
+    background: var(--cream);
+  }
+
+  .process-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 120px 80px;
+  }
+
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 60px;
+    background: var(--border);
+  }
+
+  .process-step {
+    background: var(--warm-white);
+    padding: 48px 40px;
+    position: relative;
+    transition: background 0.3s ease;
+  }
+
+  .process-step:hover { background: var(--black); }
+  .process-step:hover .step-title { color: var(--cream); }
+  .process-step:hover .step-body { color: var(--muted); }
+  .process-step:hover .step-num { color: var(--rust-light); }
+
+  .step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    font-weight: 900;
+    color: var(--border);
+    line-height: 1;
+    transition: color 0.3s ease;
+  }
+
+  .step-week {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--rust);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 16px;
+    margin-bottom: 12px;
+  }
+
+  .step-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 16px;
+    transition: color 0.3s ease;
+  }
+
+  .step-body {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #5a5650;
+    transition: color 0.3s ease;
+  }
+
+  /* BEFORE / AFTER */
+  .transformation {
+    padding: 120px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ba-grid {
+    display: grid;
+    grid-template-columns: 1fr 80px 1fr;
+    gap: 0;
+    margin-top: 60px;
+    align-items: stretch;
+  }
+
+  .ba-col {
+    padding: 48px;
+  }
+
+  .ba-col.before {
+    background: #f0ece4;
+    border: 1px solid var(--border);
+  }
+
+  .ba-col.after {
+    background: var(--black);
+    border: 1px solid var(--black);
+  }
+
+  .ba-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--rust);
+    font-size: 24px;
+    color: white;
+  }
+
+  .ba-heading {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  .ba-col.before .ba-heading { color: var(--muted); }
+  .ba-col.after .ba-heading { color: var(--rust-light); }
+
+  .ba-item {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .ba-col.before .ba-item { color: #6b665e; }
+  .ba-col.after .ba-item { color: var(--cream); }
+
+  .ba-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 16px;
+  }
+
+  /* SOCIAL PROOF */
+  .proof-section {
+    background: var(--black);
+    padding: 120px 80px;
+  }
+
+  .proof-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .testimonials {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 60px;
+    background: #1a1a18;
+  }
+
+  .testimonial {
+    background: var(--black);
+    padding: 40px;
+    position: relative;
+  }
+
+  .testimonial::before {
+    content: '"';
+    font-family: 'Playfair Display', serif;
+    font-size: 80px;
+    color: var(--rust);
+    line-height: 0.8;
+    display: block;
+    margin-bottom: 20px;
+    opacity: 0.6;
+  }
+
+  .testimonial-text {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #c8c0b4;
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+
+  .testimonial-author {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .testimonial-author strong {
+    display: block;
+    color: var(--cream);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  /* COMPARISON TABLE */
+  .compare {
+    padding: 120px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 60px;
+    font-size: 14px;
+  }
+
+  .compare-table th {
+    padding: 20px 24px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .compare-table th.highlight {
+    background: var(--black);
+    color: var(--cream);
+    border-bottom-color: var(--rust);
+  }
+
+  .compare-table td {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    color: #5a5650;
+  }
+
+  .compare-table td.highlight {
+    background: #f5f0e8;
+    color: var(--black);
+    font-weight: 500;
+  }
+
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  .check { color: var(--rust); font-size: 18px; }
+  .cross { color: #c0b8ae; font-size: 18px; }
+
+  /* 8 REASONS */
+  .reasons {
+    background: var(--cream);
+    padding: 120px 80px;
+  }
+
+  .reasons-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .reasons-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    margin-top: 60px;
+    background: var(--border);
+  }
+
+  .reason-card {
+    background: var(--warm-white);
+    padding: 36px 32px;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  .reason-card:hover {
+    background: var(--rust);
+    transform: translateY(-2px);
+  }
+
+  .reason-card:hover .reason-num,
+  .reason-card:hover .reason-title,
+  .reason-card:hover .reason-body { color: white; }
+
+  .reason-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 40px;
+    font-weight: 900;
+    color: var(--border);
+    line-height: 1;
+    transition: color 0.3s ease;
+  }
+
+  .reason-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--black);
+    margin: 12px 0 10px;
+    transition: color 0.3s ease;
+  }
+
+  .reason-body {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--muted);
+    transition: color 0.3s ease;
+  }
+
+  /* FAQ */
+  .faq {
+    padding: 120px 80px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .faq-q {
+    padding: 28px 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    user-select: none;
+  }
+
+  .faq-q::after {
+    content: '+';
+    font-family: 'DM Mono', monospace;
+    font-size: 20px;
+    color: var(--rust);
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+  }
+
+  .faq-item.open .faq-q::after {
+    transform: rotate(45deg);
+  }
+
+  .faq-a {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #6b665e;
+    padding-bottom: 28px;
+    display: none;
+  }
+
+  .faq-item.open .faq-a { display: block; }
+
+  /* FINAL CTA */
+  .final-cta {
+    background: var(--black);
+    padding: 120px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .final-cta::before {
+    content: 'AI CONTENT ENGINE';
+    position: absolute;
+    font-family: 'Playfair Display', serif;
+    font-size: 200px;
+    font-weight: 900;
+    color: white;
+    opacity: 0.02;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    letter-spacing: -0.05em;
+  }
+
+  .final-cta h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1.1;
+    max-width: 700px;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+
+  .final-cta h2 em {
+    font-style: italic;
+    color: var(--rust-light);
+  }
+
+  .final-cta p {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 500px;
+    margin: 0 auto 48px;
+    line-height: 1.7;
+    position: relative;
+  }
+
+  .price-block {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .price-amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1;
+  }
+
+  .price-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .cta-group {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .cta-secondary {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-decoration: none;
+    border-bottom: 1px solid #3a3a38;
+    padding-bottom: 2px;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .cta-secondary:hover {
+    color: var(--cream);
+    border-color: var(--cream);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-left { padding: 60px 40px; min-height: auto; }
+    .hero-right { padding: 60px 40px; }
+    .hero-left::after { display: none; }
+    section, .process-inner, .transformation, .compare, .faq, .final-cta, .reasons-inner, .proof-inner { padding: 80px 32px; }
+    .process-grid, .testimonials, .reasons-grid { grid-template-columns: 1fr; }
+    .ba-grid { grid-template-columns: 1fr; }
+    .ba-arrow { display: none; }
+    .compare-table { font-size: 12px; }
+    .compare-table th, .compare-table td { padding: 14px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="logo-mark">Geneveva Lancsweert — AI Systems</div>
+    <div class="hero-headline">
+      <h1>The AI Content <em>Engine</em></h1>
+      <p class="hero-sub">
+        Built for you.<br>
+        Owned by you.<br>
+        Runs without you.
+      </p>
+    </div>
+    <div class="hero-cta-area">
+      <a href="#contact" class="cta-primary"><span>Book a Free Audit Call →</span></a>
+      <p class="cta-note">6-week engagement · $4,500 flat · Starts this month</p>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="proof-strip">
+      <div class="proof-item">
+        <div class="proof-number">6,345<span>%</span></div>
+        <div class="proof-label">Minimum ROI delivered across campaigns</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-number">#1</div>
+        <div class="proof-label">Google & YouTube ranking achieved with $20 budget</div>
+      </div>
+      <div class="proof-item">
+        <div class="proof-number">22k</div>
+        <div class="proof-label">Views generated with zero paid amplification</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="usp-banner">
+  <div class="usp-track">
+    <div class="usp-item accent">AWS Certified Solutions Architect</div>
+    <div class="usp-item">LangChain & Generative AI</div>
+    <div class="usp-item accent">Masters in Clinical Psychology</div>
+    <div class="usp-item">N8N Workflow Automation</div>
+    <div class="usp-item accent">Accredited AWS Instructor</div>
+    <div class="usp-item">Claude Code Systems Architecture</div>
+    <div class="usp-item accent">EN · FR · NL · ES</div>
+    <div class="usp-item">Proven 100–300x Cost Efficiency</div>
+    <!-- duplicate for seamless loop -->
+    <div class="usp-item accent">AWS Certified Solutions Architect</div>
+    <div class="usp-item">LangChain & Generative AI</div>
+    <div class="usp-item accent">Masters in Clinical Psychology</div>
+    <div class="usp-item">N8N Workflow Automation</div>
+    <div class="usp-item accent">Accredited AWS Instructor</div>
+    <div class="usp-item">Claude Code Systems Architecture</div>
+    <div class="usp-item accent">EN · FR · NL · ES</div>
+    <div class="usp-item">Proven 100–300x Cost Efficiency</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="process">
+  <div class="process-inner">
+    <div class="section-label reveal">How it works</div>
+    <h2 class="reveal" style="font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,52px);font-weight:900;line-height:1.1;max-width:600px;">Three phases. Six weeks. You own it forever.</h2>
+    <div class="process-grid">
+      <div class="process-step reveal">
+        <div class="step-num">01</div>
+        <div class="step-week">Weeks 1–2</div>
+        <div class="step-title">Audit & Architecture</div>
+        <div class="step-body">Full audit of your current tools, content workflow, and gaps. You get a clear map of what stays, what goes, and what gets built — aligned to your ICP and growth goals.</div>
+      </div>
+      <div class="process-step reveal">
+        <div class="step-num">02</div>
+        <div class="step-week">Weeks 3–5</div>
+        <div class="step-title">Build & Tune</div>
+        <div class="step-body">Custom AI content workflow built in N8N + Claude, trained on your brand voice. Includes content generation pipeline, repurposing system, SEO brief automation, and performance tracking.</div>
+      </div>
+      <div class="process-step reveal">
+        <div class="step-num">03</div>
+        <div class="step-week">Week 6</div>
+        <div class="step-title">Handover & Mastery</div>
+        <div class="step-body">Full documentation. Live walkthrough with your team. You leave knowing exactly how it works, how to maintain it, and how to expand it. No dependency. No black box.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BEFORE / AFTER -->
+<div class="transformation">
+  <div class="section-label reveal">The transformation</div>
+  <h2 class="reveal" style="font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,52px);font-weight:900;line-height:1.1;max-width:600px;">Before you had a system. After you <em style="color:var(--rust);font-style:italic;">own</em> one.</h2>
+  <div class="ba-grid reveal">
+    <div class="ba-col before">
+      <div class="ba-heading">Before</div>
+      <div class="ba-item"><span class="ba-icon">✗</span><span>Content production is slow, manual, inconsistent</span></div>
+      <div class="ba-item"><span class="ba-icon">✗</span><span>AI tools running in parallel, nothing connected</span></div>
+      <div class="ba-item"><span class="ba-icon">✗</span><span>Automations break and nobody can fix them</span></div>
+      <div class="ba-item"><span class="ba-icon">✗</span><span>No content-driven pipeline wins to show leadership</span></div>
+      <div class="ba-item"><span class="ba-icon">✗</span><span>You nod confidently in AI meetings and hope no one asks follow-ups</span></div>
+    </div>
+    <div class="ba-arrow">→</div>
+    <div class="ba-col after">
+      <div class="ba-heading">After</div>
+      <div class="ba-item"><span class="ba-icon" style="color:var(--rust-light)">✓</span><span>System produces on-brand content at 5–10x current speed</span></div>
+      <div class="ba-item"><span class="ba-icon" style="color:var(--rust-light)">✓</span><span>One integrated workflow: research → draft → optimize → publish</span></div>
+      <div class="ba-item"><span class="ba-icon" style="color:var(--rust-light)">✓</span><span>Documented, maintainable — your junior runs it day one</span></div>
+      <div class="ba-item"><span class="ba-icon" style="color:var(--rust-light)">✓</span><span>Measurable output tied to rankings, leads, and revenue</span></div>
+      <div class="ba-item"><span class="ba-icon" style="color:var(--rust-light)">✓</span><span>You run the AI meeting and other people take notes</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SOCIAL PROOF -->
+<div class="proof-section">
+  <div class="proof-inner">
+    <div class="section-label reveal" style="color:var(--muted);">What clients say</div>
+    <h2 class="reveal" style="font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,52px);font-weight:900;line-height:1.1;color:var(--cream);max-width:600px;">Results that speak before introductions.</h2>
+    <div class="testimonials reveal">
+      <div class="testimonial">
+        <p class="testimonial-text">The system she built does in 20 minutes what used to take my team two days. And she explained every piece of it so we could actually own it. That's what set her apart from every agency we'd tried before.</p>
+        <div class="testimonial-author"><strong>Head of Marketing, B2B SaaS</strong>Series A · 45 people</div>
+      </div>
+      <div class="testimonial">
+        <p class="testimonial-text">I expected a technical consultant who'd leave me with something I couldn't maintain. Instead I got someone who made me genuinely understand the architecture. Three months later we've expanded it ourselves.</p>
+        <div class="testimonial-author"><strong>Founder, EdTech Platform</strong>Bootstrapped · Remote-first</div>
+      </div>
+      <div class="testimonial">
+        <p class="testimonial-text">We hit #1 on Google within six weeks. $20 in budget. I showed it to the board and they finally understood what content could do. That one win funded the next six months of strategy.</p>
+        <div class="testimonial-author"><strong>Marketing Director, Wellness Brand</strong>Global · 12 markets</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARISON TABLE -->
+<div class="compare">
+  <div class="section-label reveal">Why this works</div>
+  <h2 class="reveal" style="font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,52px);font-weight:900;line-height:1.1;max-width:600px;">The gap nobody else fills.</h2>
+  <table class="compare-table reveal">
+    <thead>
+      <tr>
+        <th>What you need</th>
+        <th>Content Agency</th>
+        <th>AI Course</th>
+        <th>Freelance Dev</th>
+        <th class="highlight">AI Content Engine</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Builds the actual system</td>
+        <td><span class="cross">✗</span></td>
+        <td><span class="cross">✗</span></td>
+        <td><span class="check">✓</span></td>
+        <td class="highlight"><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>You own it, not them</td>
+        <td><span class="cross">✗</span></td>
+        <td><span class="cross">✗</span></td>
+        <td>Sometimes</td>
+        <td class="highlight"><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>You understand how it works</td>
+        <td><span class="cross">✗</span></td>
+        <td>Theory only</td>
+        <td><span class="cross">✗</span></td>
+        <td class="highlight"><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>Proven real-world results</td>
+        <td>Mixed</td>
+        <td><span class="cross">✗</span></td>
+        <td><span class="cross">✗</span></td>
+        <td class="highlight"><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>Tied to SEO & pipeline</td>
+        <td>Sometimes</td>
+        <td><span class="cross">✗</span></td>
+        <td><span class="cross">✗</span></td>
+        <td class="highlight"><span class="check">✓</span></td>
+      </tr>
+      <tr>
+        <td>Fixed price, no retainer lock-in</td>
+        <td><span class="cross">✗</span></td>
+        <td><span class="check">✓</span></td>
+        <td>Varies</td>
+        <td class="highlight"><span class="check">✓</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 8 REASONS -->
+<div class="reasons">
+  <div class="reasons-inner">
+    <div class="section-label reveal">8 reasons to choose this</div>
+    <h2 class="reveal" style="font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,52px);font-weight:900;line-height:1.1;max-width:600px;">Why this. Why now. Why her.</h2>
+    <div class="reasons-grid">
+      <div class="reason-card reveal">
+        <div class="reason-num">01</div>
+        <div class="reason-title">AWS Certified + AI Certified</div>
+        <div class="reason-body">Solutions Architect + DevOps Professional. The architecture is built on real cloud infrastructure, not duct tape.</div>
+      </div>
+      <div class="reason-card reveal">
+        <div class="reason-num">02</div>
+        <div class="reason-title">Psychology-informed design</div>
+        <div class="reason-body">Masters in Clinical Psychology. The system is built around how your audience thinks and what makes them act.</div>
+      </div>
+      <div class="reason-card reveal">
+        <div class="reason-num">03</div>
+        <div class="reason-title">Proven ROI you can show</div>
+        <div class="reason-body">6,345%–19,565% ROI across campaigns. #1 rankings. Real numbers, real proof, real clients.</div>
+      </div>
+      <div class="reason-card reveal">
+        <div class="reason-num">04</div>
+        <div class="reason-title">You own the outcome</div>
+        <div class="reason-body">Full documentation. Full handover. You're not buying a service — you're buying a permanent asset.</div>
+      </div>
+      <div class="reason-card reveal">
+        <div class="reason-num">05</div>
+        <div class="reason-title">Accredited instructor</div>
+        <div class="reason-body">AWS RE/START Accredited Instructor. She doesn't just build it — she makes sure you understand it.</div>
+      </div>
+      <div class="reason-card reveal">
+        <div class="reason-num">06</div>
+        <div class="reason-title">Fixed price, no surprises</div>
+        <div class="reason-body">$4,500. Six weeks. No scope creep, no hidden retainer, no dependency built in by design.</div>
+      </div>
+      <div class="reason-card reveal">
+        <div class="reason-num">07</div>
+        <div class="reason-title">Multilingual reach</div>
+        <div class="reason-body">EN, FR, NL, ES. Your system can launch into European markets where AI content competition is minimal.</div>
+      </div>
+      <div class="reason-card reveal">
+        <div class="reason-num">08</div>
+        <div class="reason-title">Faster than hiring</div>
+        <div class="reason-body">Six weeks to a running system. Cheaper than one month of a content agency. Faster than a new hire's notice period.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq">
+  <div class="section-label reveal">FAQ</div>
+  <h2 class="reveal" style="font-family:'Playfair Display',serif;font-size:clamp(28px,3vw,44px);font-weight:900;line-height:1.1;margin-bottom:60px;">The 5 things Marcus always asks.</h2>
+
+  <div class="faq-item reveal">
+    <div class="faq-q">What if my team isn't technical enough to maintain it?</div>
+    <div class="faq-a">That's exactly why the handover phase exists. The system is built to be maintained by a non-technical team member. The documentation is written for humans, not engineers. If your junior can use Notion, they can run this.</div>
+  </div>
+  <div class="faq-item reveal">
+    <div class="faq-q">How is this different from hiring a content agency?</div>
+    <div class="faq-a">An agency keeps you dependent — that's their business model. You pay monthly forever, and if you leave, the system goes with them. Here, you pay once, you own the asset, and you never need me to keep it running.</div>
+  </div>
+  <div class="faq-item reveal">
+    <div class="faq-q">Can this actually be built in six weeks?</div>
+    <div class="faq-a">Yes — because it's not built from scratch. The architecture already exists and has been proven across multiple clients. Your engagement is customisation and implementation, not research and experimentation.</div>
+  </div>
+  <div class="faq-item reveal">
+    <div class="faq-q">What tools does it use? Will I need to buy more subscriptions?</div>
+    <div class="faq-a">The core stack is N8N (open source, self-hostable), Claude API, and your existing CMS and SEO tools. In most cases the monthly running cost is under $100. We'll audit your current subscriptions in week one and likely eliminate some.</div>
+  </div>
+  <div class="faq-item reveal">
+    <div class="faq-q">What if I want ongoing support after the handover?</div>
+    <div class="faq-a">Optional $800/mo retainer for monthly performance review, system iteration, and expansion. No lock-in — month to month. Most clients don't need it after month three.</div>
+  </div>
+</div>
+
+<!-- FINAL CTA -->
+<div class="final-cta" id="contact">
+  <h2 class="reveal">Stop trying to build it.<br><em>Let's build it together.</em></h2>
+  <p class="reveal">Book a free 30-minute audit call. You'll leave with a clear picture of what your AI content system should look like — whether you work with me or not.</p>
+  <div class="price-block reveal">
+    <div class="price-amount">$4,500</div>
+    <div class="price-label">flat · 6 weeks · yours forever</div>
+  </div>
+  <div class="cta-group reveal">
+    <a href="mailto:vivalancsweert@gmail.com" class="cta-primary"><span>Book the Audit Call →</span></a>
+    <a href="https://www.linkedin.com/in/viva-lancsweert-2448781/" class="cta-secondary" target="_blank">View LinkedIn Profile</a>
+  </div>
+</div>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.parentElement;
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+</script>
+</body>
+</html>
